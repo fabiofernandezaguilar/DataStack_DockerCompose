@@ -30,7 +30,9 @@ Este repositorio contiene una solución de análisis de datos y automatización 
 └── postgres/          # Archivos de inicialización y datos de ejemplo
 ```
 
-<img width="565" alt="Screenshot 2025-05-04 at 3 45 30 PM" src="https://github.com/user-attachments/assets/a2b55178-eee8-4dc1-8c16-27323bdb52d1" />
+<img width="602" alt="Screenshot 2025-05-04 at 4 04 18 PM" src="https://github.com/user-attachments/assets/0a985b7b-43e7-46dd-a797-31de0296ff58" />
+
+
 
 ---
 
