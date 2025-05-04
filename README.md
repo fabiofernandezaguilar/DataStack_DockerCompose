@@ -47,7 +47,7 @@ Este repositorio contiene una solución de análisis de datos y automatización 
 ## ▶️ Cómo iniciar el entorno
 
 ```bash
-docker compose [filename_dockercompose.yml] up -d
+docker compose -f [filename_dockercompose.yml] up -d
 ```
 
 Todos los servicios se iniciarán en modo desatendido. Puedes monitorear el estado con:
@@ -61,7 +61,7 @@ docker compose ps
 ## ▶️ Cómo detener el entorno
 
 ```bash
-docker compose [filename_dockercompose.yml] down -v
+docker compose -f [filename_dockercompose.yml] down -v
 ```
 
 
