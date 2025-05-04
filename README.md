@@ -72,6 +72,8 @@ docker compose -f [filename_dockercompose.yml] down -v
 docker compose -f docker-compose.yml down -v
 ```
 
+<img width="875" alt="Screenshot 2025-05-04 at 4 44 14 PM" src="https://github.com/user-attachments/assets/c6e989f0-c892-46b6-a235-8bda53cd6ef8" />
+
 
 ## 🌐 Accesos por defecto
 
