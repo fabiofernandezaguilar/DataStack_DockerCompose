@@ -58,7 +58,7 @@ docker compose ps
 
 ---
 
-## ▶️ Cómo detener el entorno
+## ▶️ Cómo detener el destruir los comtenedores
 
 ```bash
 docker compose -f [filename_dockercompose.yml] down -v
