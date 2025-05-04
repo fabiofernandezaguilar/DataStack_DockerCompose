@@ -89,5 +89,5 @@ Este proyecto se entrega bajo la licencia MIT. Eres libre de adaptarlo, modifica
 
 ## 👨‍💻 Autor
 
-Desarrollado por Fabio Fernández y el equipo NinjaData 🥷📊
+Desarrollado por Fabio Fernández 📊
 
