@@ -48,6 +48,8 @@ Este repositorio contiene una solución de análisis de datos y automatización 
 
 ```bash
 docker compose -f [filename_dockercompose.yml] up -d
+
+docker compose -f docker-compose.yml up -d
 ```
 
 <img width="962" alt="Screenshot 2025-05-04 at 4 22 03 PM" src="https://github.com/user-attachments/assets/633d6d64-3f8c-4524-ba11-c2bc5737897d" />
@@ -66,6 +68,8 @@ docker compose ps
 
 ```bash
 docker compose -f [filename_dockercompose.yml] down -v
+
+docker compose -f docker-compose.yml down -v
 ```
 
 
