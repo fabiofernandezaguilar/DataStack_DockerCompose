@@ -32,6 +32,7 @@ Este repositorio contiene una solución de análisis de datos y automatización 
 
 <img width="602" alt="Screenshot 2025-05-04 at 4 04 18 PM" src="https://github.com/user-attachments/assets/0a985b7b-43e7-46dd-a797-31de0296ff58" />
 
+<img width="757" alt="Screenshot 2025-05-04 at 4 09 10 PM" src="https://github.com/user-attachments/assets/e7e42736-231e-4f81-99a1-c67e46fbdce8" />
 
 
 ---
