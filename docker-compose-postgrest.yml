@@ -1,0 +1,150 @@
+
+#version: '3.8'
+
+x-airflow-common:
+  &airflow-common
+  image: apache/airflow:2.7.1-python3.9
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflowpass@postgres:5432/airflow
+    AIRFLOW__WEBSERVER__SECRET_KEY: 9c28d09d3b312806e942fe414ef590ccae6b628b846425c87bd8a0ee99131e4c
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
+    AIRFLOW__LOGGING__LOGGING_LEVEL: DEBUG
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./airflow-data/logs:/opt/airflow/logs
+    - ./airflow-data/plugins:/opt/airflow/plugins
+    - ./airflow-data/airflow.cfg:/opt/airlfow/airflow.cfg
+  depends_on:
+    - postgres
+
+
+services:
+  postgres:
+    image: postgres:15
+    container_name:  postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflowpass
+      POSTGRES_DB: airflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "55432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db init
+        airflow users create --username admin --password admin --firstname Fabio --lastname Fernández --role Admin --email fabio@datastrategys.com
+    restart: on-failure
+
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    #restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1500M
+        reservations:
+          cpus: "0.5"
+          memory: 1024M
+
+
+  airflow-scheduler: 
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    command: scheduler
+    #restart: always  
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 768M
+
+  postgrest:
+    image: postgrest/postgrest
+    container_name: postgrest
+    ports:
+      - "3001:3001"
+    environment:
+      PGRST_DB_URI: postgres://airflow:airflowpass@postgres:5432/airflow
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: web_anon
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  metabase:
+    image: metabase/metabase
+    container_name: metabase
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: airflow
+      MB_DB_PORT: 5432
+      MB_DB_USER: airflow
+      MB_DB_PASS: airflowpass
+      MB_DB_HOST: postgres
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  superset:
+    image: apache/superset
+    container_name: superset
+    environment:
+      SUPERSET_LOAD_EXAMPLES: "no"
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./superset_config.py:/app/pythonpath/superset_config.py    
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 2048M
+        reservations:
+          cpus: "0.75"
+          memory: 1024M
+
+volumes:
+  pgdata:

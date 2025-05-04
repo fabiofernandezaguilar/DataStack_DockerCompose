@@ -1,0 +1,152 @@
+#El uso de version esta deprecate
+#version: '3.8'
+
+x-airflow-common:
+  &airflow-common
+  #image: apache/airflow:2.7.1-python3.9 #esta versión esta presentando problemas
+  image: apache/airflow:2.6.3-python3.9
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflowpass@postgres:5432/airflow
+    AIRFLOW__WEBSERVER__SECRET_KEY: 9c28d09d3b312806e942fe414ef590ccae6b628b846425c87bd8a0ee99131e4c
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'True'
+    AIRFLOW__LOGGING__LOGGING_LEVEL: DEBUG
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./airflow-data/logs:/opt/airflow/logs
+    - ./airflow-data/plugins:/opt/airflow/plugins
+    - ./airflow_bootstrap.sh:/opt/airflow/airflow_bootstrap.sh
+  depends_on:
+    - postgres
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflowpass
+      POSTGRES_DB: airflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "55432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    entrypoint: /opt/airflow/airflow_bootstrap.sh
+    restart: on-failure
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1500M
+        reservations:
+          cpus: "0.5"
+          memory: 1024M
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 768M
+
+  postgrest:
+    image: postgrest/postgrest
+    container_name: postgrest
+    ports:
+      - "3001:3000"
+    environment:
+      #PGRST_DB_URI: postgres://airflow:airflowpass@postgres:5432/airflow
+      #PGRST_DB_URI: postgres://airflow:airflowpass@host.docker.internal:55432/airflow
+      #Conexion para base de datos Postgresql instalada en localhost, no en un contenedor. 
+      PGRST_DB_URI: postgres://postgres:sqls3rv3r@host.docker.internal:5432/airbnb
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: web_anon
+    #depends_on:
+    #  - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  metabase:
+    image: metabase/metabase
+    container_name: metabase
+    ports:
+      - "3005:3000"
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: airflow
+      MB_DB_PORT: 5432
+      MB_DB_USER: airflow
+      MB_DB_PASS: airflowpass
+      MB_DB_HOST: postgres
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  superset:
+    image: apache/superset
+    container_name: superset
+    environment:
+      SUPERSET_SECRET_KEY: 9c28d09d3b312806e942fe414ef590ccae6b628b846425c87bd8a0ee99131e4c
+      SUPERSET_LOAD_EXAMPLES: "yes"
+    volumes:
+      - ./superset_bootstrap.sh:/app/superset_bootstrap.sh
+    entrypoint: /app/superset_bootstrap.sh
+    ports:
+      - "8088:8088"
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 2048M
+        reservations:
+          cpus: "0.75"
+          memory: 1024M
+
+volumes:
+  pgdata:
