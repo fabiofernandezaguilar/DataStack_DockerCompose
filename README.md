@@ -84,6 +84,12 @@ docker compose [filename_dockercompose.yml] down -v
 
 ---
 
+## Notas: 
+1. Este ambiente no es persistente, por lo que cada vez que el ambiente se levante, va a inicializar en CERO
+2. Para mi ambiente, la base de datos postgresql qu utilizo, no es la del repositorio, si no una base de datos local (instancia instalada en MACOS)
+
+--- 
+
 ## 📄 Licencia
 
 Este proyecto se entrega bajo la licencia MIT. Eres libre de adaptarlo, modificarlo y utilizarlo en tus propios proyectos.
